@@ -137,7 +137,7 @@ Returns a SQL query string that will find the number of male medalists.
 
 const numberMenMedalists = country => {
   return `
-  SELECT DISTINCT name, COUNT(*) AS 'count' 
+  SELECT COUNT(DISTINCT name) AS 'count' 
   FROM GoldMedal 
   WHERE country='${country}'
     AND gender = 'Men';`
@@ -148,7 +148,11 @@ Returns a SQL query string that will find the number of female medalists.
 */
 
 const numberWomenMedalists = country => {
-  return;
+  return `
+  SELECT COUNT(DISTINCT name) AS 'count' 
+  FROM GoldMedal 
+  WHERE country='${country}'
+    AND gender = 'Women';`
 };
 
 /*
@@ -156,7 +160,13 @@ Returns a SQL query string that will find the athlete with the most medals.
 */
 
 const mostMedaledAthlete = country => {
-  return;
+  return `
+  SELECT name 
+  FROM GoldMedal 
+  WHERE country='${country}'
+  GROUP BY name
+  ORDER BY COUNT(*) DESC
+  LIMIT 1;`
 };
 
 /*
@@ -165,7 +175,17 @@ optionally ordered by the given field in the specified direction.
 */
 
 const orderedMedals = (country, field, sortAscending) => {
-  return;
+  let orderQuery = ''
+  if (field) {
+    let direction;
+    sortAscending? direction = 'ASC' : direction = 'DESC';
+    orderQuery = `ORDER BY ${field} ${direction};`
+  }
+    return `
+      SELECT * 
+      FROM GoldMedal 
+      WHERE country='${country}'
+      ${orderQuery};`
 };
 
 /*
@@ -174,9 +194,19 @@ won medals in. It should include the number of medals, aliased as 'count',
 as well as the percentage of this country's wins the sport represents,
 aliased as 'percent'. Optionally ordered by the given field in the specified direction.
 */
-
+// TODO:
 const orderedSports = (country, field, sortAscending) => {
-  return;
+  let orderQuery = ''
+  if (field) {
+    let direction;
+    sortAscending? direction = 'ASC' : direction = 'DESC';
+    orderQuery = `ORDER BY ${field} ${direction};`
+  }
+    return `
+      SELECT sports, COUNT(*) AS 'count', COUNT()
+      FROM GoldMedal 
+      WHERE country='${country}'
+      ${orderQuery};`
 };
 
 /*
